@@ -1,28 +1,13 @@
-import {WebSocketClient} from "./lib/WebSocketClient";
-import logo from './logo.svg';
+import React, { useRef } from "react";
 import './App.css';
-
-const wsc = new WebSocketClient();
+import ChatWindow  from './components/ChatWindow';
 
 function App() {
+	const uId = useRef("UID-" + new Date().getTime());
 	return (
 		<div className="App">
-			<header className="App-header">
-				<img src={logo} className="App-logo" alt="logo" />
-				<p>
-					Edit <code>src/App.js</code> and save to reload.
-				</p>
-				<a
-					className="App-link"
-					href="https://reactjs.org"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					Learn React
-				</a>
-			</header>
+			<ChatWindow userId={uId.current} />
 		</div>
 	);
 }
-
 export default App;

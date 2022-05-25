@@ -1,6 +1,7 @@
 export class WebSocketClient {
-    constructor()
+    constructor(onMessageHandler)
     {
+        this.onMessageHandler = onMessageHandler;
         this.ws = null;
         this.createWebSocket();
     }
@@ -28,7 +29,6 @@ export class WebSocketClient {
      */
     onOpen(evt) { 
         console.log('WebSocket Client Connected');
-        this.ws.send('Hi this is web client.');
     }
 
     /**
@@ -45,5 +45,11 @@ export class WebSocketClient {
      */
     onMessage(evt) {
         console.log("Received: '" + evt.data + "'");
+        this.onMessageHandler(JSON.parse(evt.data));
     }
+
+    sendMessage(msg) {
+        this.ws.send(msg);
+    }
+
 }
