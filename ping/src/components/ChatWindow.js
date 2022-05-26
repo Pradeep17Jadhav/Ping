@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-// import './ChatWindow.css';
+import './ChatWindow.css';
 import MessageBoard from './MessageBoard';
 import Editor from './Editor';
 import { WebSocketClient } from "../lib/WebSocketClient";
@@ -22,14 +22,15 @@ const ChatWindow = props => {
         const obj = {
             senderId: props.userId,
             message: message,
-            timestamp: new Date().getTime()
+            timestamp: new Date().getTime(),
+            senderName: "Pradeep"
         }
         wsc.current.sendMessage(JSON.stringify(obj));
     }
 
     return (
         <div className="chat-window">
-            <MessageBoard messages={arrMessages}/>
+            <MessageBoard messages={arrMessages} userId={props.userId}/>
             <Editor onSubmit={onSubmit}></Editor>
         </div>
     );

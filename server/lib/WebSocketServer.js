@@ -48,7 +48,7 @@ class WebSocketServer {
         const obj = JSON.parse(message.utf8Data);
         console.log("Received Message:", obj.message, "from", obj.senderId);
         this.wss.connections.forEach((conn) => {
-            if(conn != sender)
+            // if(conn != sender)
                 conn.sendUTF(message.utf8Data);
         })
     }

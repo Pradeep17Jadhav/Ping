@@ -1,0 +1,31 @@
+.bubble {
+    display: flex;
+}
+
+.bubble-body {
+    display: inline-block;
+    justify-content: start;
+    background: #31344b;
+    color: #B6B8C8;
+    padding: 8px 16px;
+    margin: 8px 16px;
+    border-radius: 6px;
+}
+
+.self {
+    justify-content: end;
+}
+
+.self .bubble-body {
+    background: #41456a;
+    justify-content: end;
+}
+
+.bubble-sender {
+    text-align: left;
+    margin: 0px 0px 4px 0px;
+}
+
+.bubble-message {
+    text-align: left;
+}

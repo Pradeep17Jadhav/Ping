@@ -1,0 +1,6 @@
+.message-board {
+    margin: 0px;
+    overflow: auto;
+    flex: auto;
+    height: calc(100% - 48px);
+}

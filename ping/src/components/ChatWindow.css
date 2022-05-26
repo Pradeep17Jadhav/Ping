@@ -1,0 +1,8 @@
+.chat-window {
+    height: 100%;
+}
+
+.chat-window_editor {
+    position: fixed;
+    bottom: 0px;
+}
