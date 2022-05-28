@@ -2,15 +2,16 @@ const websocket = require('websocket').server;
 
 class WebSocketServer {
     constructor(server) {
-        this.clients = [];
+        /** @type {Array<Object>} */
+        this.arrRooms = [];
 
         this.wss = new websocket({
             httpServer: server
         });
 
         setInterval(() => {
-            console.log(this.wss.connections.length);
-        }, 5000);
+            console.log(this.wss.connections.length, "clients connected");
+        }, 3000);
 
         this.addListeners();
     }
@@ -21,17 +22,38 @@ class WebSocketServer {
      */
     addListeners() {
         const self = this;
-        this.wss.on("request", function(request) {
-            const conn = request.accept(null, request.origin);
+        this.wss.on("request", function(req) {
+            if(!req || !req.origin || !req.resourceURL || !req.resourceURL.query)
+                return;
+
+            const conn = req.accept(null, req.origin);
+            const roomId = req.resourceURL.query.roomId;
             const userId = self.getUniqueID();
-            self.clients.push({
-                userId: userId,
-                conn: conn
+
+            //find room in arrRooms using roomId
+            let room = self.arrRooms.find(room => {
+                return room.roomId === roomId;
             });
 
-            console.log(self.clients);
+            //if room already exists, add the current user in it
+            //else create a new room and add current user in it
+            if(room) {
+                room.connections.push({
+                    userId: userId,
+                    conn: conn
+                });
+            } else {
+                self.arrRooms.push({
+                    roomId: roomId,
+                    connections: [{
+                        userId: userId,
+                        conn: conn
+                    }]
+                });
+            }
+
             conn.on("message", (message)  => {
-                self.onMessage(message, conn);
+                self.onMessage(message, userId, roomId);
             });
 
             conn.on("close", (reasonCode, description) => {
@@ -40,17 +62,28 @@ class WebSocketServer {
         });
     }
 
+    createNewRoom() {
+
+    }
+
     /**
      * Handle msgs from wss connection
      * @returns {void}
      */
-    onMessage(message, sender) {
-        const obj = JSON.parse(message.utf8Data);
-        console.log("Received Message:", obj.message, "from", obj.senderId);
-        this.wss.connections.forEach((conn) => {
-            // if(conn != sender)
-                conn.sendUTF(message.utf8Data);
-        })
+    onMessage(message, userId, roomId) {
+        let obj = JSON.parse(message.utf8Data);
+        obj.senderId = userId;
+        const broadCastMessage = JSON.stringify(obj);
+
+        console.log("Received Message:", obj.message, "from", userId, "in room", roomId);
+
+        this.arrRooms.forEach(room => {
+            if(room.roomId == roomId) {
+                room.connections.forEach(connection => {
+                    connection.conn.sendUTF(broadCastMessage);
+                })
+            }
+        });
     }
 
     /**

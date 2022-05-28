@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import './ChatWindow.css';
-import MessageBoard from './MessageBoard';
-import Editor from './Editor';
-import { WebSocketClient } from "../lib/WebSocketClient";
+import MessageBoard from './../components/MessageBoard';
+import Editor from './../components/Editor';
+import { WebSocketClient } from "./../lib/WebSocketClient";
 
 const ChatWindow = props => {
     const [arrMessages, setArrMessages] = useState([]);
+    const roomId = useParams().roomId;
     
     const onMessage = (oMessage) => {
         setArrMessages((prevArrMessages) => {
@@ -14,16 +16,14 @@ const ChatWindow = props => {
     }
     let wsc = useRef();
     useEffect(() => {
-        wsc.current = new WebSocketClient(onMessage);
+        wsc.current = new WebSocketClient(onMessage, roomId);
     }, []);
 
 
     const onSubmit = (message) => {
         const obj = {
-            senderId: props.userId,
             message: message,
             timestamp: new Date().getTime(),
-            senderName: "Pradeep"
         }
         wsc.current.sendMessage(JSON.stringify(obj));
     }
