@@ -1,5 +1,4 @@
 import { useState } from "react";
-import sendIcon from "./../resources/svg-icons/send.svg";
 import "./Editor.css";
 
 export default function Editor(props) {    
