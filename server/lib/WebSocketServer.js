@@ -1,9 +1,12 @@
 const websocket = require('websocket').server;
 
 class WebSocketServer {
-    constructor(server) {
+    constructor(server, rooms) {
         /** @type {Array<Object>} */
         this.arrRooms = [];
+
+        /** @type {Rooms} */
+        this.rooms = rooms;
 
         this.wss = new websocket({
             httpServer: server
@@ -22,13 +25,21 @@ class WebSocketServer {
      */
     addListeners() {
         const self = this;
-        this.wss.on("request", function(req) {
-            if(!req || !req.origin || !req.resourceURL || !req.resourceURL.query)
+        this.wss.on("request", function(req, res) {
+            if(!req || !req.origin || !req.resourceURL || !req.resourceURL.query) {
+                req.reject(102, "Invalid request");
                 return;
+            }
+
+            const roomId = req.resourceURL.query.roomId;
+            const userId = req.resourceURL.query.userId;
+            
+            if(!self.rooms.validateLogin(roomId, userId)) {
+                req.reject(102, "Not authorized");
+                return;
+            }
 
             const conn = req.accept(null, req.origin);
-            const roomId = req.resourceURL.query.roomId;
-            const userId = self.getUniqueID();
 
             //find room in arrRooms using roomId
             let room = self.arrRooms.find(room => {
@@ -62,10 +73,6 @@ class WebSocketServer {
         });
     }
 
-    createNewRoom() {
-
-    }
-
     /**
      * Handle msgs from wss connection
      * @returns {void}
@@ -74,8 +81,6 @@ class WebSocketServer {
         let obj = JSON.parse(message.utf8Data);
         obj.senderId = userId;
         const broadCastMessage = JSON.stringify(obj);
-
-        console.log("Received Message:", obj.message, "from", userId, "in room", roomId);
 
         this.arrRooms.forEach(room => {
             if(room.roomId == roomId) {
@@ -93,11 +98,6 @@ class WebSocketServer {
     onClose(reasonCode, description) {
         console.log("Client has disconnected. Reason: ", description);
     }
-
-    getUniqueID = () => {
-        const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-        return new Date().getTime() + '-' + s4() + '-' + s4();
-    };
 }
 
 module.exports = WebSocketServer;

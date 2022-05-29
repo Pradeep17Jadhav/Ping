@@ -1,8 +1,10 @@
 import React, { Fragment, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import './CreateRoom.css';
 import axios from "axios";
 
 const CreateRoom = props => {
+    const navigate = useNavigate();
     const [roomId, setRoomId] = useState("");
     const [password, setPassword] = useState("");
 
@@ -25,7 +27,8 @@ const CreateRoom = props => {
                     password: password
                 }
             }).then((response) => {
-                console.log(response.data[0]);
+                props.setUserId(response.data.userId);
+                navigate(`/${response.data.roomId}`);
             });
         } else {
             //join room
@@ -35,7 +38,8 @@ const CreateRoom = props => {
                     password: password
                 }
             }).then((response) => {
-                console.log(response.data[0]);
+                props.setUserId(response.data.userId);
+                navigate(`/${response.data.roomId}`);
             });
         }
     }

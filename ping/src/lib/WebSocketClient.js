@@ -3,12 +3,13 @@ export class WebSocketClient {
      * 
      * @param {function} onMessageHandler 
      * @param {string} roomId 
+     * @param {string} userId 
      */
-    constructor(onMessageHandler, roomId)
+    constructor(onMessageHandler, roomId, userId)
     {
         this.onMessageHandler = onMessageHandler;
         this.ws = null;
-        this.createWebSocket(roomId);
+        this.createWebSocket(roomId, userId);
     }
 
     /**
@@ -16,8 +17,8 @@ export class WebSocketClient {
      * @param {string}
      * @returns {void}
      */
-    createWebSocket(roomId) {
-        this.ws = new WebSocket(`ws://localhost:4000/?roomId=${roomId}`);
+    createWebSocket(roomId, userId) {
+        this.ws = new WebSocket(`ws://localhost:4000/?roomId=${roomId}&userId=${userId}`);
         this.ws.onopen = (evt) => {
             this.onOpen(evt);
         }
@@ -26,6 +27,9 @@ export class WebSocketClient {
         }        
         this.ws.onclose = (evt) => {
             this.onClose(evt);
+        }       
+        this.ws.onerror = (evt) => {
+            console.log(evt);
         }
     }
 
@@ -54,6 +58,11 @@ export class WebSocketClient {
         this.onMessageHandler(JSON.parse(evt.data));
     }
 
+    /**
+     * 
+     * @param {string} msg 
+     * @returns {void}
+     */
     sendMessage(msg) {
         this.ws.send(msg);
     }
